@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unit Converter — Student Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #573861;
+    --border: #704070;
+    --accent: #ee87ee;
+    --accent2: #38d9a9;
+    --text: #e8ecf4;
+    --muted: #7a82a0;
+    --warn: #f9a825;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.3px; }
+  header span { font-size: 13px; color: var(--muted); margin-left: 4px; font-weight: 400; }
+
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 20px 0; }
+
+  .cat-tabs {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px;
+  }
+
+  .tab {
+    padding: 8px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    font-size: 13px; font-weight: 600; font-family: 'Nunito', sans-serif;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .tab:hover { border-color: var(--accent); color: var(--accent); }
+  .tab.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .converter-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px;
+    margin-bottom: 28px;
+  }
+
+  .conv-grid {
+    display: grid;
+    grid-template-columns: 1fr 48px 1fr;
+    align-items: end;
+    gap: 16px;
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 8px; }
+  .field-group label { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  select {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 14px; font-family: 'Nunito', sans-serif; font-weight: 600;
+    width: 100%;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a82a0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  select:focus { border-color: var(--accent); }
+
+  input[type="number"] {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 22px; font-family: 'JetBrains Mono', monospace; font-weight: 600;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="number"]:focus { border-color: var(--accent); }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+  .swap-btn {
+    width: 48px; height: 48px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 20px;
+    transition: all 0.15s;
+    align-self: end;
+    margin-bottom: 0;
+    color: var(--muted);
+  }
+  .swap-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.08); }
+
+  .result-area {
+    margin-top: 24px;
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid var(--border);
+  }
+
+  .result-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px; font-weight: 600;
+    color: var(--accent2);
+    word-break: break-all;
+  }
+
+  .result-label {
+    font-size: 13px; color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .result-formula {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+    max-width: 220px;
+  }
+
+  .quick-refs {
+    margin-top: 28px;
+  }
+
+  .quick-refs h2 {
+    font-size: 14px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 14px;
+  }
+
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .ref-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .ref-item strong { color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  @media (max-width: 600px) {
+    .conv-grid { grid-template-columns: 1fr; }
+    .swap-btn { width: 100%; border-radius: 10px; }
+    .result-area { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .result-formula { text-align: left; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-icon">⚗</div>
+  <div>
+    <h1>hub</h1>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="cat-tabs" id="tabs"></div>
+
+  <div class="converter-card">
+    <div class="conv-grid">
+      <div class="field-group">
+        <label>From</label>
+        <select id="fromUnit"></select>
+        <input type="number" id="fromVal" value="1" step="any" placeholder="Enter value…" />
+      </div>
+      <button class="swap-btn" id="swapBtn" title="Swap units">⇄</button>
+      <div class="field-group">
+        <label>To</label>
+        <select id="toUnit"></select>
+        <input type="number" id="toVal" step="any" placeholder="Result…" readonly style="cursor:default; opacity:0.85;" />
+      </div>
+    </div>
+
+    <div class="result-area">
+      <div>
+        <div class="result-value" id="resultBig">—</div>
+        <div class="result-label" id="resultLabel">Select units above</div>
+      </div>
+      <div class="result-formula" id="resultFormula"></div>
+    </div>
+  </div>
+
+  <div class="quick-refs">
+    <h2 id="refTitle">Quick Reference</h2>
+    <div class="ref-grid" id="refGrid"></div>
+  </div>
+
+</div>
+
+<script>
+const cats = {
+  "Speed": {
+    emoji: "🚀",
+    units: ["m/s","km/h","mph","ft/s","knots","mach"],
+    toBase: { "m/s":1, "km/h":1/3.6, "mph":0.44704, "ft/s":0.3048, "knots":0.514444, "mach":340.29 },
+    refs: [
+      ["Speed of light","299,792,458 m/s"],["Speed of sound","343 m/s"],
+      ["Fastest human sprint","~12.4 m/s (Bolt)"],["Typical car (highway)","~28 m/s = 100 km/h"],
+      ["Earth's orbital speed","~29,800 m/s"],["ISS orbit speed","~7,700 m/s"]
+    ]
+  },
+  "Mass": {
+    emoji: "⚖️",
+    units: ["kg","g","mg","lb","oz","tonne","amu"],
+    toBase: { "kg":1, "g":0.001, "mg":1e-6, "lb":0.453592, "oz":0.0283495, "tonne":1000, "amu":1.66054e-27 },
+    refs: [
+      ["Proton mass","1.67 × 10⁻²⁷ kg"],["Electron mass","9.11 × 10⁻³¹ kg"],
+      ["Average human","~70 kg"],["Blue whale","~150,000 kg"],
+      ["1 pound","453.6 g"],["Earth","5.97 × 10²⁴ kg"]
+    ]
+  },
+  "Length": {
+    emoji: "📏",
+    units: ["m","km","cm","mm","ft","in","mile","yard","nm","light-year"],
+    toBase: { "m":1, "km":1000, "cm":0.01, "mm":0.001, "ft":0.3048, "in":0.0254, "mile":1609.34, "yard":0.9144, "nm":1e-9, "light-year":9.461e15 },
+    refs: [
+      ["1 foot","30.48 cm"],["1 mile","1.609 km"],
+      ["Earth radius","6,371 km"],["Earth–Moon","384,400 km"],
+      ["Earth–Sun","149.6 million km"],["Hydrogen atom","~0.1 nm"]
+    ]
+  },
+  "Temperature": {
+    emoji: "🌡️",
+    units: ["°C","°F","K"],
+    special: true,
+    refs: [
+      ["Absolute zero","−273.15 °C = 0 K"],["Water freezes","0 °C = 32 °F"],
+      ["Body temp","37 °C = 98.6 °F"],["Water boils","100 °C = 212 °F"],
+      ["Surface of Sun","~5,500 °C"],["Coldest recorded","−89.2 °C (Antarctica)"]
+    ]
+  },
+  "Time": {
+    emoji: "⏱️",
+    units: ["s","ms","min","h","day","week","month","year"],
+    toBase: { "s":1, "ms":0.001, "min":60, "h":3600, "day":86400, "week":604800, "month":2629800, "year":31557600 },
+    refs: [
+      ["Light travels 1 m","3.3 ns"],["One heartbeat","~0.8 s"],
+      ["1 day","86,400 s"],["1 year","~31.6 million s"],
+      ["Age of Universe","~4.3 × 10¹⁷ s"],["Human reaction time","~0.25 s"]
+    ]
+  },
+  "Area": {
+    emoji: "🗺️",
+    units: ["m²","km²","cm²","mm²","ft²","in²","acre","hectare"],
+    toBase: { "m²":1, "km²":1e6, "cm²":1e-4, "mm²":1e-6, "ft²":0.092903, "in²":6.4516e-4, "acre":4046.86, "hectare":10000 },
+    refs: [
+      ["Football field","~5,350 m²"],["1 acre","4,047 m²"],
+      ["1 hectare","10,000 m²"],["Algeria","2.38 million km²"],
+      ["Central Park NYC","3.4 km²"],["Earth surface","510 million km²"]
+    ]
+  },
+  "Volume": {
+    emoji: "🧪",
+    units: ["L","mL","m³","cm³","gallon","pt","cup","fl oz","tsp","tbsp"],
+    toBase: { "L":1, "mL":0.001, "m³":1000, "cm³":0.001, "gallon":3.78541, "pt":0.473176, "cup":0.236588, "fl oz":0.0295735, "tsp":0.00492892, "tbsp":0.0147868 },
+    refs: [
+      ["1 teaspoon","5 mL"],["1 tablespoon","15 mL"],
+      ["1 cup","236.6 mL"],["1 US gallon","3.785 L"],
+      ["Olympic pool","2,500,000 L"],["Human blood","~5 L"]
+    ]
+  },
+  "Energy": {
+    emoji: "⚡",
+    units: ["J","kJ","cal","kcal","Wh","kWh","eV","BTU"],
+    toBase: { "J":1, "kJ":1000, "cal":4.184, "kcal":4184, "Wh":3600, "kWh":3600000, "eV":1.602e-19, "BTU":1055.06 },
+    refs: [
+      ["1 food calorie","4,184 J"],["Lifting 1 kg by 1 m","~9.8 J"],
+      ["1 kWh","3.6 million J"],["Atomic bomb (Hiroshima)","~6.3 × 10¹³ J"],
+      ["Human daily energy","~8,000 kJ"],["Photon (visible light)","~2–3 eV"]
+    ]
+  },
+  "Force": {
+    emoji: "💪",
+    units: ["N","kN","lbf","kgf","dyne"],
+    toBase: { "N":1, "kN":1000, "lbf":4.44822, "kgf":9.80665, "dyne":1e-5 },
+    refs: [
+      ["Weight of 1 kg","9.81 N"],["Weight of 1 lb","4.45 N"],
+      ["Earth gravity","9.81 m/s²"],["Moon gravity","1.62 m/s²"],
+      ["Saturn V rocket thrust","~33 MN"],["Human bite force","~700 N"]
+    ]
+  },
+  "Pressure": {
+    emoji: "🌬️",
+    units: ["Pa","kPa","MPa","bar","atm","psi","mmHg","torr"],
+    toBase: { "Pa":1, "kPa":1000, "MPa":1e6, "bar":100000, "atm":101325, "psi":6894.76, "mmHg":133.322, "torr":133.322 },
+    refs: [
+      ["1 atm","101,325 Pa"],["Sea level air","~1 atm"],
+      ["Car tyre","~35 psi"],["Blood pressure (normal)","~120/80 mmHg"],
+      ["Deep ocean (11 km)","~110 MPa"],["Vacuum","~0 Pa"]
+    ]
+  }
+};
+
+let currentCat = "Speed";
+
+function fmt(n) {
+  if (isNaN(n)) return "—";
+  if (n === 0) return "0";
+  const abs = Math.abs(n);
+  if (abs < 1e-6 || abs >= 1e12) return n.toExponential(4);
+  if (abs < 0.01) return parseFloat(n.toPrecision(5)).toString();
+  return parseFloat(n.toPrecision(7)).toLocaleString('en-US', {maximumSignificantDigits: 7});
+}
+
+function convertTemp(val, from, to) {
+  let c = from === "°C" ? val : from === "°F" ? (val-32)*5/9 : val-273.15;
+  if (to === "°C") return c;
+  if (to === "°F") return c*9/5+32;
+  return c+273.15;
+}
+
+function doConvert() {
+  const cat = cats[currentCat];
+  const val = parseFloat(document.getElementById("fromVal").value);
+  const from = document.getElementById("fromUnit").value;
+  const to = document.getElementById("toUnit").value;
+
+  if (isNaN(val)) {
+    document.getElementById("resultBig").textContent = "—";
+    document.getElementById("resultLabel").textContent = "Enter a number";
+    document.getElementById("resultFormula").textContent = "";
+    document.getElementById("toVal").value = "";
+    return;
+  }
+
+  let result;
+  if (cat.special) {
+    result = convertTemp(val, from, to);
+  } else {
+    result = val * cat.toBase[from] / cat.toBase[to];
+  }
+
+  const display = fmt(result);
+  document.getElementById("resultBig").textContent = display;
+  document.getElementById("resultLabel").textContent = `${val} ${from} = ${display} ${to}`;
+  document.getElementById("toVal").value = parseFloat(result.toPrecision(8));
+
+  if (!cat.special && from !== to) {
+    const factor = cat.toBase[from] / cat.toBase[to];
+    document.getElementById("resultFormula").textContent = `1 ${from} = ${fmt(factor)} ${to}`;
+  } else {
+    document.getElementById("resultFormula").textContent = "";
+  }
+}
+
+function buildTabs() {
+  const container = document.getElementById("tabs");
+  container.innerHTML = "";
+  Object.keys(cats).forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (c === currentCat ? " active" : "");
+    btn.textContent = cats[c].emoji + " " + c;
+    btn.onclick = () => {
+      currentCat = c;
+      buildTabs();
+      buildSelects();
+      doConvert();
+      buildRefs();
+    };
+    container.appendChild(btn);
+  });
+}
+
+function buildSelects() {
+  const fs = document.getElementById("fromUnit");
+  const ts = document.getElementById("toUnit");
+  const prevFrom = fs.value, prevTo = ts.value;
+  const units = cats[currentCat].units;
+  fs.innerHTML = ts.innerHTML = "";
+  units.forEach(u => { fs.add(new Option(u,u)); ts.add(new Option(u,u)); });
+  if (units.includes(prevFrom)) fs.value = prevFrom;
+  ts.selectedIndex = units.includes(prevTo) && prevTo !== fs.value ? units.indexOf(prevTo) : 1;
+}
+
+function buildRefs() {
+  const cat = cats[currentCat];
+  document.getElementById("refTitle").textContent = currentCat + " — Quick Facts";
+  const grid = document.getElementById("refGrid");
+  grid.innerHTML = "";
+  (cat.refs || []).forEach(([label, val]) => {
+    const d = document.createElement("div");
+    d.className = "ref-item";
+    d.innerHTML = `${label}<br><strong>${val}</strong>`;
+    grid.appendChild(d);
+  });
+}
+
+document.getElementById("fromUnit").onchange = doConvert;
+document.getElementById("toUnit").onchange = doConvert;
+document.getElementById("fromVal").oninput = doConvert;
+
+document.getElementById("swapBtn").onclick = () => {
+  const fs = document.getElementById("fromUnit");
+  const ts = document.getElementById("toUnit");
+  const fv = document.getElementById("fromVal");
+  const tv = document.getElementById("toVal");
+  const tmp = fs.value;
+  fs.value = ts.value;
+  ts.value = tmp;
+  fv.value = tv.value || fv.value;
+  doConvert();
+};
+
+buildTabs();
+buildSelects();
+buildRefs();
+doConvert();
+</script>
+</body>
+</html>
